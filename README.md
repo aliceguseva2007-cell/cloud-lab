@@ -52,8 +52,7 @@ python -m http.server 8000
 1. Ввести текст в форму → «Добавить».
 2. Обновить страницу (F5) — запись сохраняется (значит, она в Postgres).
 
-<img width="608" height="367" alt="Снимок экрана 2026-09-22 210606" src="https://github.com/user-attachments/assets/89c7501f-6d81-481e-84a6-024164762814" />
-
+<img width="847" height="407" alt="Снимок экрана 2026-09-22 210854" src="https://github.com/user-attachments/assets/0d33b947-5481-426f-940d-bfc004a0d45e" />
 
 ## API
 - `GET  /api/notes` — список
