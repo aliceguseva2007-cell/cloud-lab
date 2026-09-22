@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Lab0 Notes</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 16px; }
+    form { display: flex; gap: 8px; margin-bottom: 24px; }
+    input { flex: 1; padding: 8px; font-size: 16px; }
+    button { padding: 8px 16px; font-size: 16px; cursor: pointer; }
+    li { padding: 8px 0; border-bottom: 1px solid #eee; }
+    .date { color: #888; font-size: 12px; margin-left: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Заметки</h1>
+  <form id="form">
+    <input id="text" placeholder="Введите текст..." required />
+    <button type="submit">Добавить</button>
+  </form>
+  <ul id="list"></ul>
+
+  <script>
+    const API = "http://localhost:5000/api/notes";
+
+    async function load() {
+      const res = await fetch(API);
+      const notes = await res.json();
+      document.getElementById("list").innerHTML = notes
+        .map(n => `<li>${n.text}<span class="date">${new Date(n.created_at).toLocaleString()}</span></li>`)
+        .join("");
+    }
+
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("text");
+      await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: input.value })
+      });
+      input.value = "";
+      load();
+    });
+
+    load();
+  </script>
+</body>
+</html>
