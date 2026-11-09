@@ -1,0 +1,15 @@
+FROM python:3.12.7-slim-bookworm AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+FROM python:3.12.7-slim-bookworm
+RUN useradd --create-home --shell /usr/sbin/nologin appuser
+WORKDIR /app
+COPY --from=builder /install /usr/local
+COPY --chown=appuser:appuser app.py .
+USER appuser
+EXPOSE 5000
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/health')" || exit 1
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
