@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Первая копия бэкенда
+  backend1:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.good
+    environment:
+      - INSTANCE_ID=backend-1
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=mydb
+      - DB_USER=user
+      - DB_PASSWORD=pass
+    depends_on:
+      - db
+
+  # Вторая копия бэкенда
+  backend2:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.good
+    environment:
+      - INSTANCE_ID=backend-2
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=mydb
+      - DB_USER=user
+      - DB_PASSWORD=pass
+    depends_on:
+      - db
+
+  # База данных
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=mydb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Сам Nginx
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Подключаем наш конфиг
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      # Подключаем папку с фронтендом
+      - ../frontend:/usr/share/nginx/html
+      # Сюда мы позже положим сертификаты
+      - ./ssl:/etc/nginx/ssl
+      # Сюда положим файл с паролем
+      - ./htpasswd:/etc/nginx/.htpasswd
+      # Папки для проверок из лабы
+      - ./docs:/usr/share/nginx/docs
+      - ./admin:/usr/share/nginx/admin
+      - ./other:/usr/share/nginx/other
+    depends_on:
+      - backend1
+      - backend2
+
+volumes:
+  pgdata:
